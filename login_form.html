@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Utente</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome per l'icona dell'occhio -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="login_form_style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="login-form">
+            <h2 class="form-title">Accedi</h2>
+
+            <!-- Alert per messaggi di successo -->
+            <div class="alert alert-success" id="success-message" role="alert"></div>
+
+            <!-- Alert per messaggi di errore -->
+            <div class="alert alert-danger" id="error-message" role="alert"></div>
+
+            <form id="loginForm" action="login_user.php" method="POST">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="password-container">
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="fa fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Accedi</button>
+                </div>
+            </form>
+
+            <div class="register-link">
+                <p>Non hai ancora un account? <a href="registration_form.html">Registrati</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle con Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script per toggle password -->
+    <script>
+        document.getElementById('togglePassword').addEventListener('mousedown', function () {
+            document.getElementById('password').type = 'text';
+        });
+
+        document.getElementById('togglePassword').addEventListener('mouseup', function () {
+            document.getElementById('password').type = 'password';
+        });
+
+        // Previene il comportamento predefinito dei pulsanti nei form
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            e.preventDefault();
+        });
+    </script>
+
+    <!-- Script per gestire il form con AJAX -->
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Raccolta dati dal form
+            const formData = new FormData(this);
+
+            // Invio dati con AJAX
+            fetch('login_user.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Nasconde entrambi i messaggi prima di mostrare quello appropriato
+                    document.getElementById('success-message').style.display = 'none';
+                    document.getElementById('error-message').style.display = 'none';
+
+                    if (data.status === 'success') {
+                        // Mostra messaggio di successo
+                        document.getElementById('success-message').textContent = data.message;
+                        document.getElementById('success-message').style.display = 'block';
+
+                        // Reindirizza dopo il login
+                        setTimeout(function () {
+                            window.location.href = data.redirect;
+                        }, 1500);
+                    } else {
+                        // Mostra messaggio di errore
+                        document.getElementById('error-message').textContent = data.message;
+                        document.getElementById('error-message').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('error-message').textContent = 'Errore di connessione al server';
+                    document.getElementById('error-message').style.display = 'block';
+                    console.error('Errore:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>
